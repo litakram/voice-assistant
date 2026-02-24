@@ -6,7 +6,7 @@
 </p>
 
 <h1 align="center">🎙️ Voice Assistant</h1>
-<h3 align="center"><em>Talk. Listen. Think. Speak. — All in real time.</em></h3>
+<h3 align="center"><em>Talk. Listen. Think. Speak — All in real time.</em></h3>
 
 <p align="center">
   A blazing-fast, speech-to-speech conversational AI pipeline that captures your voice,<br/>
@@ -22,7 +22,7 @@
          │                                                  ▲
          ▼                                                  │
 ┌─────────────────┐  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│  🎤  Capture    │─▶│  📝  Transcribe  │─▶│  🧠  Brain       │─▶│  🔊  Speak       │
+│  🎤  Capture   │─▶│ 📝  Transcribe  │─▶│    🧠  Brain    │─▶│   🔊  Speak     │
 │  sounddevice    │  │  Whisper STT     │  │  GPT-4o          │  │  TTS + Playback  │
 │  energy-based   │  │  API             │  │  streaming       │  │  raw PCM         │
 │  VAD            │  │                  │  │  + sentence      │  │  via sounddevice │
@@ -166,6 +166,6 @@ voice_assistant/
 ---
 
 <p align="center">
-  Made with ❤️ and a microphone<br/>
+  Made with ❤️ , ☕ and a microphone<br/>
   <strong>Just speak. The assistant handles the rest.</strong>
 </p>
