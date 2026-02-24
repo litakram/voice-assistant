@@ -10,9 +10,4 @@ openai==1.61.0
 # Environment variable loading
 python-dotenv==1.0.1
 
-# MP3 decoding for TTS playback
-pydub==0.25.1
-
-# pydub requires ffmpeg — install via:
-#   Windows: choco install ffmpeg  OR  download from https://ffmpeg.org
-
+# pydub is removed — raw PCM is used for playback to avoid FFmpeg dependency

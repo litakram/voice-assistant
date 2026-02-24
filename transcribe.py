@@ -28,6 +28,12 @@ def transcribe(audio_bytes: io.BytesIO) -> str:
         The transcribed text, or an empty string on failure.
     """
     try:
+        # Check if dummy audio was passed (too small)
+        if audio_bytes.getbuffer().nbytes < 1000:
+            if config.DEBUG:
+                print("  ⚠️ Audio buffer too small for transcription.")
+            return ""
+
         result = _client.audio.transcriptions.create(
             model="whisper-1",
             file=audio_bytes,
@@ -41,5 +47,10 @@ def transcribe(audio_bytes: io.BytesIO) -> str:
 
     except Exception as exc:
         if config.DEBUG:
-            print(f"  ⚠️  Whisper API error: {exc}")
+            print(f"  ❌ Whisper API error: {exc}")
+            # Identify common errors
+            if "invalid_api_key" in str(exc):
+                print("     Check your OPENAI_API_KEY in .env")
+            elif "rate_limit_exceeded" in str(exc):
+                print("     API rate limit exceeded.")
         return ""

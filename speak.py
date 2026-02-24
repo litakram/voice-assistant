@@ -2,7 +2,8 @@
 speak.py — Stage 4: Text-to-Speech + Playback.
 
 Synthesizes sentences via the OpenAI TTS API and plays them through
-the default speakers using sounddevice + pydub.
+the default speakers using sounddevice.
+Uses raw PCM output to avoid FFmpeg dependency.
 """
 
 import io
@@ -11,7 +12,6 @@ from typing import Generator
 
 import numpy as np
 import sounddevice as sd
-from pydub import AudioSegment
 from openai import OpenAI
 
 import config
@@ -24,7 +24,7 @@ is_speaking = threading.Event()
 
 def synthesize(text: str) -> io.BytesIO:
     """
-    Send a text string to the OpenAI TTS API and return audio bytes.
+    Send a text string to the OpenAI TTS API and return raw PCM audio.
 
     Parameters
     ----------
@@ -34,12 +34,13 @@ def synthesize(text: str) -> io.BytesIO:
     Returns
     -------
     io.BytesIO
-        In-memory MP3 audio data.
+        In-memory PCM audio data (24kHz, 16-bit mono).
     """
     response = _client.audio.speech.create(
         model="tts-1",
         voice=config.TTS_VOICE,
         input=text,
+        response_format="pcm",  # Raw PCM instead of MP3
     )
     buf = io.BytesIO(response.content)
     buf.seek(0)
@@ -48,27 +49,21 @@ def synthesize(text: str) -> io.BytesIO:
 
 def play_audio(audio_bytes: io.BytesIO) -> None:
     """
-    Decode MP3 audio and play it through the default speakers.
+    Play raw PCM audio through the default speakers.
 
-    Uses pydub for MP3 → PCM decoding and sounddevice for playback.
     Blocks until playback is complete.
 
     Parameters
     ----------
     audio_bytes : io.BytesIO
-        In-memory MP3 data from the TTS API.
+        In-memory PCM data (24kHz, 16-bit mono).
     """
     audio_bytes.seek(0)
-    segment = AudioSegment.from_mp3(audio_bytes)
+    # Convert raw bytes to numpy array (16-bit signed integer)
+    samples = np.frombuffer(audio_bytes.read(), dtype=np.int16)
 
-    # Convert to raw PCM numpy array
-    samples = np.array(segment.get_array_of_samples(), dtype=np.int16)
-
-    # Handle stereo → reshape
-    if segment.channels == 2:
-        samples = samples.reshape((-1, 2))
-
-    sd.play(samples, samplerate=segment.frame_rate)
+    # TTS "pcm" format is 24,000 Hz, mono
+    sd.play(samples, samplerate=24_000)
     sd.wait()  # block until done
 
 
